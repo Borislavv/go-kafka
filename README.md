@@ -1,24 +1,29 @@
 ## Kafka client based on Sarama (Shopify)
 
 ### Certs embedded filesystem:
-1. **cd: {root}/path/to/any/dir**
+1. **cd: {root}/certs/dir/in/your/project**
 
 2. **mkdir certs**
 
-3. **cp /path/to/certs/on/host/\* {root}/path/to/any/dir/certs**
+3. **cp /path/to/certs/on/host/\* certs**
 
 4. **touch fs.go**
 
 5. **Pass the code into the created fs.go**
 
 
-    package kafkacerts
+		package kafkacerts
 
-    import "embed"
+    	import "embed"
     
-    //go:embed certs/*.crt
-    var EmbeddedFS embed.FS
+    	//go:embed certs/*.crt
+    	var EmbeddedFS embed.FS
 
+6. You must have such structure:
+
+    	// pwd: {root}/certs/dir/in/your/project
+   		.certs
+   		fs.go
 
 ### Usage:
     ctx, cancel := context.WithCancel(context.Background())
