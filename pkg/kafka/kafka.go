@@ -2,6 +2,7 @@ package kafka
 
 import (
 	"context"
+	"embed"
 	"errors"
 	"fmt"
 	kafkaconfiginterface "github.com/Borislavv/go-kafka/pkg/kafka/config/interface"
@@ -28,8 +29,9 @@ func New(
 	ctx context.Context,
 	cfg kafkaconfiginterface.Configurator,
 	lgr logger.Logger,
+	certsFS ...embed.FS,
 ) (kafka *Kafka, err error) {
-	config, err := kafkasaramaconfig.New(cfg)
+	config, err := kafkasaramaconfig.New(cfg, certsFS...)
 	if err != nil {
 		return nil, lgr.Error(ctx, errors.New("failed to init sarama config"), logger.Fields{
 			"error": err.Error(),

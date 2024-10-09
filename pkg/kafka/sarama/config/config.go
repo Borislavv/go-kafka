@@ -3,6 +3,7 @@ package kafkasaramaconfig
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"embed"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -10,19 +11,18 @@ import (
 	saslscram "github.com/Borislavv/go-kafka/pkg/kafka/sasl/scram"
 	"github.com/Shopify/sarama"
 	"github.com/xdg-go/scram"
-	kafkacerts "gitlab.xbet.lan/web-backend/php/seo-default-languages/.ops/kafka"
 	"io/fs"
 	"path/filepath"
 )
 
-func New(cfg kafkaconfiginterface.Configurator) (config *sarama.Config, err error) {
+func New(cfg kafkaconfiginterface.Configurator, certsFS ...embed.FS) (config *sarama.Config, err error) {
 	config = sarama.NewConfig()
 
 	if err = setUpSASLConfig(config, cfg); err != nil {
 		return nil, err
 	}
 
-	if err = setUpTLSConfig(config, cfg); err != nil {
+	if err = setUpTLSConfig(config, cfg, certsFS...); err != nil {
 		return nil, err
 	}
 
@@ -60,7 +60,7 @@ func setUpSASLConfig(config *sarama.Config, cfg kafkaconfiginterface.Configurato
 	return nil
 }
 
-func setUpTLSConfig(config *sarama.Config, cfg kafkaconfiginterface.Configurator) error {
+func setUpTLSConfig(config *sarama.Config, cfg kafkaconfiginterface.Configurator, certsFS ...embed.FS) error {
 	if !cfg.GetTLSEnabled() {
 		return nil
 	}
@@ -69,24 +69,26 @@ func setUpTLSConfig(config *sarama.Config, cfg kafkaconfiginterface.Configurator
 
 	var pemCerts [][]byte
 
-	const certsDir = "certs"
-	dir, err := kafkacerts.EmbeddedFS.ReadDir(certsDir)
-	if err != nil {
-		return fmt.Errorf("read certs dir: %w", err)
-	}
-	for _, entry := range dir {
-		f, err := fs.ReadFile(kafkacerts.EmbeddedFS, filepath.Join(certsDir, entry.Name()))
+	for _, certFS := range certsFS {
+		dir, err := certFS.ReadDir(cfg.GetCertsDir())
 		if err != nil {
-			return fmt.Errorf("read %s: %w", entry.Name(), err)
+			return fmt.Errorf("read certs dir: %w", err)
 		}
+		for _, entry := range dir {
+			f, err := fs.ReadFile(certFS, filepath.Join(cfg.GetCertsDir(), entry.Name()))
+			if err != nil {
+				return fmt.Errorf("read %s: %w", entry.Name(), err)
+			}
 
-		pemCerts = append(pemCerts, f)
+			pemCerts = append(pemCerts, f)
+		}
 	}
 
 	if len(pemCerts) == 0 {
 		return nil
 	}
 
+	var err error
 	config.Net.TLS.Config = &tls.Config{}
 	config.Net.TLS.Config.RootCAs, err = x509.SystemCertPool()
 	if err != nil {

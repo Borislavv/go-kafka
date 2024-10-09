@@ -6,7 +6,6 @@ require (
 	github.com/Borislavv/go-logger v0.0.10
 	github.com/Shopify/sarama v1.38.1
 	github.com/xdg-go/scram v1.1.2
-	gitlab.xbet.lan/web-backend/php/seo-default-languages v0.0.0-20241009121127-6f69cef939c5
 )
 
 require (

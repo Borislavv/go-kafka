@@ -14,6 +14,7 @@ type Kafka struct {
 	SASLUser      string             `envconfig:"KAFKA_SASL_USER" default:"seoteam"`
 	SASLPassword  string             `envconfig:"KAFKA_SASL_PASSWORD" default:"seoteam"`
 	Group         string             `envconfig:"KAFKA_GROUP" default:"local-seo-gw-control-plane"`
+	CertsDir      string             `envconfig:"KAFKA_CERTS_DIR" default:"certs"`
 	ProducerType  kafkaproducer.Type `envconfig:"KAFKA_PRODUCER_TYPE" default:"1"`
 }
 
@@ -39,6 +40,10 @@ func (c Kafka) GetSASLPassword() string {
 
 func (c Kafka) GetGroup() string {
 	return c.Group
+}
+
+func (c Kafka) GetCertsDir() string {
+	return c.CertsDir
 }
 
 func (c Kafka) GetProducerType() kafkaproducer.Type {

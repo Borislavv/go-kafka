@@ -1,8 +1,28 @@
 ## Kafka client based on Sarama (Shopify)
 
+### Certs embedded filesystem:
+1. **cd: {root}/path/to/any/dir**
+
+2. **mkdir certs**
+
+3. **cp /path/to/certs/on/host/\* {root}/path/to/any/dir/certs**
+
+4. **touch fs.go**
+
+5. **Pass the code into the created fs.go**
+
+
+    package kafkacerts
+
+    import "embed"
+    
+    //go:embed certs/*.crt
+    var EmbeddedFS embed.FS
+
+
 ### Usage:
-ctx, cancel := context.WithCancel(context.Background())
-defer cancel()
+    ctx, cancel := context.WithCancel(context.Background())
+    defer cancel()
 
 	kafkaCfg := kafkaconfig.Kafka{}
 	if err := envcofig("", &kafkaCfg); err != nil {
@@ -30,7 +50,7 @@ defer cancel()
 	}
 	defer cancel()
 
-	client, err := kafka.New(ctx, kafkaCfg, lgr)
+	client, err := kafka.New(ctx, kafkaCfg, lgr, kafkacerts.EmbeddedFS)
 	if err != nil {
 		logger.JsonRawLog("kafka: unable to init client (producer/consumer)", loggerenum.FatalLvl, err)
 		return

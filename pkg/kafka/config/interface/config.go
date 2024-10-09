@@ -9,5 +9,6 @@ type Configurator interface {
 	GetSASLUser() string
 	GetSASLPassword() string
 	GetGroup() string
+	GetCertsDir() string
 	GetProducerType() kafkaproducer.Type
 }
