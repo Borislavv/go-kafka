@@ -10,7 +10,7 @@ var _ kafkaconfiginterface.Configurator = (*Kafka)(nil)
 type Kafka struct {
 	Addrs         []string           `envconfig:"KAFKA_ADDRS" default:"host.docker.internal:9094"`
 	TLSEnabled    bool               `envconfig:"KAFKA_TLS_ENABLED" default:"false"`
-	SASLMechanism string             `envconfig:"KAFKA_SASL_MECHANISM" default:"PLAIN"`
+	SASLMechanism string             `envconfig:"KAFKA_SASL_MECHANISM" default:"PLAIN"` // PLAIN, SCRAM-SHA-256, SCRAM-SHA-512
 	SASLUser      string             `envconfig:"KAFKA_SASL_USER" default:"seoteam"`
 	SASLPassword  string             `envconfig:"KAFKA_SASL_PASSWORD" default:"seoteam"`
 	Group         string             `envconfig:"KAFKA_GROUP" default:"local-seo-gw-control-plane"`
