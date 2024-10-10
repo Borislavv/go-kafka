@@ -14,6 +14,7 @@ import (
 	"slices"
 	"strings"
 	"sync"
+	"time"
 )
 
 var _ kafkaconsumerinterface.Consumer = (*Consumer)(nil)
@@ -22,6 +23,7 @@ type Consumer struct {
 	mu            *sync.Mutex
 	wg            *sync.WaitGroup
 	logger        logger.Logger
+	cfg           kafkaconfiginterface.Configurator
 	consumerGroup sarama.ConsumerGroup
 	consumersMap  map[string]kafkamessagehandlerinterface.ConsumerGroupHandler
 }
@@ -43,6 +45,7 @@ func New(
 		mu:            &sync.Mutex{},
 		wg:            &sync.WaitGroup{},
 		logger:        lgr,
+		cfg:           kafkaCfg,
 		consumerGroup: consumerGroup,
 		consumersMap:  make(map[string]kafkamessagehandlerinterface.ConsumerGroupHandler, 1),
 	}, nil
@@ -67,7 +70,10 @@ func (c *Consumer) Consume(ctx context.Context, topics []string) <-chan *kafkaco
 
 		for {
 			if err := c.consumerGroup.Consume(ctx, topics, consumer); err != nil {
-				if errors.Is(err, sarama.ErrClosedConsumerGroup) || ctx.Err() != nil {
+				if ctx.Err() != nil ||
+					errors.Is(err, sarama.ErrClosedConsumerGroup) ||
+					errors.Is(err, sarama.ErrGroupAuthorizationFailed) ||
+					errors.Is(err, sarama.ErrTopicAuthorizationFailed) {
 					return
 				}
 
@@ -75,6 +81,13 @@ func (c *Consumer) Consume(ctx context.Context, topics []string) <-chan *kafkaco
 					"err":    err.Error(),
 					"topics": topics,
 				})
+
+				select {
+				case <-ctx.Done():
+					return
+				default:
+					c.awaitRetry()
+				}
 			}
 		}
 	}()
@@ -118,4 +131,10 @@ func (c *Consumer) clsConsumer(hash string, consumer kafkamessagehandlerinterfac
 	defer c.mu.Unlock()
 	delete(c.consumersMap, hash)
 	consumer.Close()
+}
+
+func (c *Consumer) awaitRetry() {
+	t := time.NewTimer(c.cfg.GetConsumeRetryInterval())
+	<-t.C
+	t.Stop()
 }

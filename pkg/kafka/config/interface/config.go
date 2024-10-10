@@ -1,6 +1,9 @@
 package kafkaconfiginterface
 
-import kafkaproducer "github.com/Borislavv/go-kafka/pkg/kafka/producer"
+import (
+	kafkaproducer "github.com/Borislavv/go-kafka/pkg/kafka/producer"
+	"time"
+)
 
 type Configurator interface {
 	GetAddrs() []string
@@ -10,5 +13,6 @@ type Configurator interface {
 	GetSASLPassword() string
 	GetGroup() string
 	GetCertsDir() string
+	GetConsumeRetryInterval() time.Duration
 	GetProducerType() kafkaproducer.Type
 }
