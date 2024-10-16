@@ -86,7 +86,7 @@ func (c *Consumer) Consume(ctx context.Context, topics []string) <-chan *kafkaco
 				case <-ctx.Done():
 					return
 				default:
-					c.awaitRetry()
+					c.awaitRetry(ctx)
 				}
 			}
 		}
@@ -133,8 +133,12 @@ func (c *Consumer) clsConsumer(hash string, consumer kafkamessagehandlerinterfac
 	consumer.Close()
 }
 
-func (c *Consumer) awaitRetry() {
+func (c *Consumer) awaitRetry(ctx context.Context) {
 	t := time.NewTimer(c.cfg.GetConsumeRetryInterval())
-	<-t.C
-	t.Stop()
+	defer t.Stop()
+
+	select {
+	case <-ctx.Done():
+	case <-t.C:
+	}
 }
