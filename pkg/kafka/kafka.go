@@ -11,6 +11,7 @@ import (
 	kafkainterface "github.com/Borislavv/go-kafka/pkg/kafka/interface"
 	kafkaproducer "github.com/Borislavv/go-kafka/pkg/kafka/producer"
 	kafkaasyncproducer "github.com/Borislavv/go-kafka/pkg/kafka/producer/async"
+	kafkaasyncproducerhandler "github.com/Borislavv/go-kafka/pkg/kafka/producer/async/handler"
 	kafkaproducerinterface "github.com/Borislavv/go-kafka/pkg/kafka/producer/interface"
 	kafkasyncproducer "github.com/Borislavv/go-kafka/pkg/kafka/producer/sync"
 	kafkasaramaconfig "github.com/Borislavv/go-kafka/pkg/kafka/sarama/config"
@@ -25,10 +26,16 @@ type Kafka struct {
 	kafkaproducerinterface.Producer
 }
 
+// New method creates a new Kafka instance.
+//
+//	param: errorHandler   - is optional callback which used with async provider.
+//	param: successHandler - is optional callback which used with async provider.
 func New(
 	ctx context.Context,
 	cfg kafkaconfiginterface.Configurator,
 	lgr logger.Logger,
+	errorHandler kafkaasyncproducerhandler.ErrorHandler,
+	successHandler kafkaasyncproducerhandler.SuccessHandler,
 	certsFS ...embed.FS,
 ) (kafka *Kafka, err error) {
 	config, err := kafkasaramaconfig.New(cfg, certsFS...)
@@ -54,7 +61,7 @@ func New(
 			})
 		}
 	} else {
-		producer, err = kafkaasyncproducer.New(ctx, config, cfg, lgr, nil, nil)
+		producer, err = kafkaasyncproducer.New(ctx, config, cfg, lgr, errorHandler, successHandler)
 		if err != nil {
 			return nil, lgr.Error(ctx, errors.New("failed to init async producer"), logger.Fields{
 				"error": err.Error(),
