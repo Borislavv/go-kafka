@@ -24,6 +24,7 @@ func New(
 ) (*Sync, error) {
 	config.Producer.Retry.Max = 3
 	config.Producer.RequiredAcks = sarama.WaitForAll
+	config.Producer.Return.Successes = true
 
 	p, err := sarama.NewSyncProducer(cfg.GetAddrs(), config)
 	if err != nil {
