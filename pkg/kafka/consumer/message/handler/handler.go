@@ -3,7 +3,7 @@ package kafkamessagehandler
 import (
 	"github.com/Borislavv/go-kafka/pkg/kafka/consumer/message"
 	kafkamessagehandlerinterface "github.com/Borislavv/go-kafka/pkg/kafka/consumer/message/handler/interface"
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 )
 
 var _ kafkamessagehandlerinterface.ConsumerGroupHandler = (*ConsumerGroupHandler)(nil)

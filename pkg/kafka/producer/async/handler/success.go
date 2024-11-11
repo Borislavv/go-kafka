@@ -1,5 +1,5 @@
 package kafkaasyncproducerhandler
 
-import "github.com/Shopify/sarama"
+import "github.com/IBM/sarama"
 
 type SuccessHandler = func(message *sarama.ProducerMessage)

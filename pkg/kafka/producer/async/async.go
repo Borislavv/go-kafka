@@ -7,7 +7,7 @@ import (
 	kafkaasyncproducerhandler "github.com/Borislavv/go-kafka/pkg/kafka/producer/async/handler"
 	kafkaproducerinterface "github.com/Borislavv/go-kafka/pkg/kafka/producer/interface"
 	"github.com/Borislavv/go-logger/pkg/logger"
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 )
 
 var _ kafkaproducerinterface.Producer = (*Async)(nil)

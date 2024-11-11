@@ -2,7 +2,7 @@ package kafkamessagehandlerinterface
 
 import (
 	kafkaconsumermessage "github.com/Borislavv/go-kafka/pkg/kafka/consumer/message"
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 )
 
 type ConsumerGroupHandler interface {

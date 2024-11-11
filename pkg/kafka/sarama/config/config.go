@@ -9,7 +9,7 @@ import (
 	"fmt"
 	kafkaconfiginterface "github.com/Borislavv/go-kafka/pkg/kafka/config/interface"
 	saslscram "github.com/Borislavv/go-kafka/pkg/kafka/sasl/scram"
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 	"github.com/xdg-go/scram"
 	"io/fs"
 	"path/filepath"

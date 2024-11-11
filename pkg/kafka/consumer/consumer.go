@@ -9,7 +9,7 @@ import (
 	kafkamessagehandler "github.com/Borislavv/go-kafka/pkg/kafka/consumer/message/handler"
 	kafkamessagehandlerinterface "github.com/Borislavv/go-kafka/pkg/kafka/consumer/message/handler/interface"
 	"github.com/Borislavv/go-logger/pkg/logger"
-	"github.com/Shopify/sarama"
+	"github.com/IBM/sarama"
 	"hash/fnv"
 	"slices"
 	"strings"
@@ -70,10 +70,7 @@ func (c *Consumer) Consume(ctx context.Context, topics []string) <-chan *kafkaco
 
 		for {
 			if err := c.consumerGroup.Consume(ctx, topics, consumer); err != nil {
-				if ctx.Err() != nil ||
-					errors.Is(err, sarama.ErrClosedConsumerGroup) ||
-					errors.Is(err, sarama.ErrGroupAuthorizationFailed) ||
-					errors.Is(err, sarama.ErrTopicAuthorizationFailed) {
+				if ctx.Err() != nil || errors.Is(err, sarama.ErrClosedConsumerGroup) {
 					return
 				}
 
