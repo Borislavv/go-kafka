@@ -74,6 +74,15 @@ func (c *Consumer) Consume(ctx context.Context, topics []string) <-chan *kafkaco
 					return
 				}
 
+				if errors.Is(err, sarama.ErrGroupAuthorizationFailed) ||
+					errors.Is(err, sarama.ErrTopicAuthorizationFailed) {
+					c.logger.ErrorMsg(ctx, "kafka consumer error", logger.Fields{
+						"err":    err.Error(),
+						"topics": topics,
+					})
+					return
+				}
+
 				c.logger.ErrorMsg(ctx, "kafka consumer error", logger.Fields{
 					"err":    err.Error(),
 					"topics": topics,
