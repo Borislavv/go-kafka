@@ -79,6 +79,7 @@ func (c *Consumer) Consume(ctx context.Context, topics []string) <-chan *kafkaco
 					c.logger.ErrorMsg(ctx, "kafka consumer error", logger.Fields{
 						"err":    err.Error(),
 						"topics": topics,
+						"group":  c.cfg.GetGroup(),
 					})
 					return
 				}
@@ -86,6 +87,7 @@ func (c *Consumer) Consume(ctx context.Context, topics []string) <-chan *kafkaco
 				c.logger.ErrorMsg(ctx, "kafka consumer error", logger.Fields{
 					"err":    err.Error(),
 					"topics": topics,
+					"group":  c.cfg.GetGroup(),
 				})
 
 				select {
